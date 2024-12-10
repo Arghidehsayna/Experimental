@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Arguments -->
+  <arg name="model" default="$(find robot_urdf)/urdf/Myrobot4.xacro" />
+
+  <!-- Load the robot description into the ROS parameter server -->
+  <param name="robot_description" 
+         command="$(find xacro)/xacro --inorder $(arg model)" />
+
+ <!-- Launch Gazebo with your custom Aruco world -->
+ <include file="$(find gazebo_ros)/launch/empty_world.launch">
+   <arg name="world_name" value="$(find robot_urdf)/worlds/Aruco.world" />
+   <arg name="paused" value="false" />
+ </include>
+
+  <!-- Spawn the robot into the Gazebo world -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model Myrobot4 -param robot_description -z 0.05" />
+
+  <!-- Start state publishers -->
+  <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+  <node name="marker_detection" pkg="robot_urdf" type="MarkerDetection.py" output="screen"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- Start RViz with your robot model -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robot_urdf)/config/robot_config.rviz" />
+
+</launch>
+
